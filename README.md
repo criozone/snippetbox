@@ -1,0 +1,2 @@
+# snippetbox
+Golang training project
