@@ -5,6 +5,7 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"os"
 	"strconv"
 )
 
@@ -58,4 +59,36 @@ func showSnippet(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Fatalln(err)
 	}
+}
+
+type CustomFileSystem struct {
+	fs http.FileSystem
+}
+
+func (ncf CustomFileSystem) Open(path string) (http.File, error) {
+	f, statErr := ncf.fs.Open(path)
+	if statErr != nil {
+		return nil, statErr
+	}
+
+	stat, statErr := f.Stat()
+	if statErr != nil {
+		err := f.Close()
+		if err != nil {
+			return nil, err
+		}
+
+		return nil, statErr
+	}
+
+	if stat.IsDir() {
+		closeErr := f.Close()
+		if closeErr != nil {
+			return nil, closeErr
+		}
+
+		return nil, os.ErrNotExist
+	}
+
+	return f, nil
 }
