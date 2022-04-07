@@ -8,55 +8,61 @@ import (
 	"strconv"
 )
 
-func (app *application) home(w http.ResponseWriter, r *http.Request) {
-	if r.URL.Path != "/" {
-		http.NotFound(w, r)
-		return
-	}
+func home(app *application) func(http.ResponseWriter, *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != "/" {
+			http.NotFound(w, r)
+			return
+		}
 
-	files := []string{
-		"./ui/html/home.page.tpl",
-		"./ui/html/base.layout.tpl",
-		"./ui/html/footer.partial.tpl",
-	}
+		files := []string{
+			"./ui/html/home.page.tpl",
+			"./ui/html/base.layout.tpl",
+			"./ui/html/footer.partial.tpl",
+		}
 
-	ts, err := template.ParseFiles(files...)
-	if err != nil {
-		app.errorLog.Println(err)
-		http.Error(w, "Internal server error", http.StatusInternalServerError)
-		return
-	}
+		ts, err := template.ParseFiles(files...)
+		if err != nil {
+			app.errorLog.Println(err)
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			return
+		}
 
-	err = ts.Execute(w, nil)
-	if err != nil {
-		app.errorLog.Println(err)
-		http.Error(w, "Internal server error", http.StatusInternalServerError)
-	}
-}
-
-func (app *application) createSnippet(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		w.Header().Set("Allow", http.MethodPost)
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
-	_, err := w.Write([]byte(fmt.Sprintf("Your are now in %s", r.RequestURI)))
-	if err != nil {
-		app.errorLog.Println(err)
+		err = ts.Execute(w, nil)
+		if err != nil {
+			app.errorLog.Println(err)
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+		}
 	}
 }
 
-func (app *application) showSnippet(w http.ResponseWriter, r *http.Request) {
-	id, err := strconv.Atoi(r.URL.Query().Get("id"))
-	if err != nil || id < 1 {
-		http.NotFound(w, r)
-		return
-	}
+func createSnippet(app *application) func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost {
+			w.Header().Set("Allow", http.MethodPost)
+			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+			return
+		}
 
-	_, err = fmt.Fprintf(w, "Displaying a snippet with id: %d", id)
-	if err != nil {
-		app.errorLog.Println(err)
+		_, err := w.Write([]byte(fmt.Sprintf("Your are now in %s", r.RequestURI)))
+		if err != nil {
+			app.errorLog.Println(err)
+		}
+	}
+}
+
+func showSnippet(app *application) func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		id, err := strconv.Atoi(r.URL.Query().Get("id"))
+		if err != nil || id < 1 {
+			http.NotFound(w, r)
+			return
+		}
+
+		_, err = fmt.Fprintf(w, "Displaying a snippet with id: %d", id)
+		if err != nil {
+			app.errorLog.Println(err)
+		}
 	}
 }
 
