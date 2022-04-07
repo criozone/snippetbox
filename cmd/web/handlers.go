@@ -3,13 +3,12 @@ package main
 import (
 	"fmt"
 	"html/template"
-	"log"
 	"net/http"
 	"os"
 	"strconv"
 )
 
-func home(w http.ResponseWriter, r *http.Request) {
+func (app *application) home(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/" {
 		http.NotFound(w, r)
 		return
@@ -23,19 +22,19 @@ func home(w http.ResponseWriter, r *http.Request) {
 
 	ts, err := template.ParseFiles(files...)
 	if err != nil {
-		log.Println(err)
+		app.errorLog.Println(err)
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
 
 	err = ts.Execute(w, nil)
 	if err != nil {
-		log.Println(err)
+		app.errorLog.Println(err)
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
 	}
 }
 
-func createSnippet(w http.ResponseWriter, r *http.Request) {
+func (app *application) createSnippet(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		w.Header().Set("Allow", http.MethodPost)
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -44,11 +43,11 @@ func createSnippet(w http.ResponseWriter, r *http.Request) {
 
 	_, err := w.Write([]byte(fmt.Sprintf("Your are now in %s", r.RequestURI)))
 	if err != nil {
-		log.Fatalln(err)
+		app.errorLog.Println(err)
 	}
 }
 
-func showSnippet(w http.ResponseWriter, r *http.Request) {
+func (app *application) showSnippet(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(r.URL.Query().Get("id"))
 	if err != nil || id < 1 {
 		http.NotFound(w, r)
@@ -57,7 +56,7 @@ func showSnippet(w http.ResponseWriter, r *http.Request) {
 
 	_, err = fmt.Fprintf(w, "Displaying a snippet with id: %d", id)
 	if err != nil {
-		log.Fatalln(err)
+		app.errorLog.Println(err)
 	}
 }
 
