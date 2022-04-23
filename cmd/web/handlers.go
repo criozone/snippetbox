@@ -66,6 +66,15 @@ func showSnippet(app *application) func(w http.ResponseWriter, r *http.Request) 
 	}
 }
 
+func listSnippets(app *application) func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		_, err := w.Write([]byte("Snippets list."))
+		if err != nil {
+			app.errorLog.Println(err)
+		}
+	}
+}
+
 type CustomFileSystem struct {
 	fs http.FileSystem
 }

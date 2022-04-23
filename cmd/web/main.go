@@ -26,6 +26,7 @@ func main() {
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", home(app))
+	mux.HandleFunc("/snippets", listSnippets(app))
 	mux.HandleFunc("/snippet", showSnippet(app))
 	mux.HandleFunc("/snippet/create", createSnippet(app))
 	fileServer := http.FileServer(CustomFileSystem{http.Dir("./ui/static/")})
