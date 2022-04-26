@@ -10,7 +10,7 @@ import (
 
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/" {
-		http.NotFound(w, r)
+		app.notFound(w)
 		return
 	}
 
@@ -22,22 +22,49 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 
 	ts, err := template.ParseFiles(files...)
 	if err != nil {
-		app.errorLog.Println(err)
-		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		app.serverError(w, err)
 		return
 	}
 
 	err = ts.Execute(w, nil)
 	if err != nil {
-		app.errorLog.Println(err)
-		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		app.serverError(w, err)
+	}
+}
+
+func (app *application) listSnippets(w http.ResponseWriter, r *http.Request) {
+	files := []string{
+		"./ui/html/list.tpl",
+		"./ui/html/base.layout.tpl",
+		"./ui/html/footer.partial.tpl",
+	}
+
+	ts, err := template.ParseFiles(files...)
+	if err != nil {
+		app.serverError(w, err)
+		return
+	}
+
+	dummy := struct {
+		List []string
+	}{
+		List: []string{
+			"First dummy snippet",
+			"Second dummy snippet",
+			"Third dummy snippet",
+		},
+	}
+
+	err = ts.Execute(w, dummy)
+	if err != nil {
+		app.serverError(w, err)
 	}
 }
 
 func (app *application) createSnippet(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		w.Header().Set("Allow", http.MethodPost)
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		app.clientError(w, http.StatusMethodNotAllowed)
 		return
 	}
 
@@ -50,7 +77,7 @@ func (app *application) createSnippet(w http.ResponseWriter, r *http.Request) {
 func (app *application) showSnippet(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(r.URL.Query().Get("id"))
 	if err != nil || id < 1 {
-		http.NotFound(w, r)
+		app.notFound(w)
 		return
 	}
 
