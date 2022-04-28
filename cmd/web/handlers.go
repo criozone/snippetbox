@@ -68,10 +68,16 @@ func (app *application) createSnippet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err := w.Write([]byte(fmt.Sprintf("Your are now in %s", r.RequestURI)))
+	title := "O snail"
+	content := "O snail\\nClimb Mount Fuji,\\nBut slowly, slowly!\\n\\n– Kobayashi Issa"
+	expires := "7"
+
+	id, err := app.snippetRep.Insert(title, content, expires)
 	if err != nil {
-		app.errorLog.Println(err)
+		app.serverError(w, err)
 	}
+
+	http.Redirect(w, r, fmt.Sprintf("/snippet?id=%d", id), http.StatusSeeOther)
 }
 
 func (app *application) showSnippet(w http.ResponseWriter, r *http.Request) {

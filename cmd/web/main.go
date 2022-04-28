@@ -1,8 +1,10 @@
 package main
 
 import (
+	"criozone.net/snippetbox/pkg/repositories/mysql"
 	"database/sql"
 	"flag"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -11,9 +13,10 @@ import (
 )
 
 type application struct {
-	errorLog *log.Logger
-	infoLog  *log.Logger
-	dbConn   *sql.DB
+	errorLog   *log.Logger
+	infoLog    *log.Logger
+	dbConn     *sql.DB
+	snippetRep *mysql.SnippetMysqlRep
 }
 
 func main() {
@@ -30,6 +33,7 @@ func main() {
 	}
 
 	defer func(dbConn *sql.DB) {
+		fmt.Println("Closing db pool")
 		err := dbConn.Close()
 		if err != nil {
 			errorLog.Println(err)
@@ -40,6 +44,9 @@ func main() {
 		errorLog: errorLog,
 		infoLog:  infoLog,
 		dbConn:   dbConn,
+		snippetRep: &mysql.SnippetMysqlRep{
+			DB: dbConn,
+		},
 	}
 
 	srv := &http.Server{
