@@ -4,5 +4,9 @@
 
 {{define "main"}}
     <h2>Latest Snippets</h2>
-    <p>There's nothing to see here yet!</p>
+    <ul>
+        {{range .Snippets}}
+            <li><a href="/snippet?id={{.Id}}">{{.Title}}</a></li>
+        {{end}}
+    </ul>
 {{end}}

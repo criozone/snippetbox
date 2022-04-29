@@ -1,6 +1,8 @@
 package main
 
 import (
+	"criozone.net/snippetbox/pkg/domain"
+	"errors"
 	"fmt"
 	"html/template"
 	"net/http"
@@ -12,6 +14,18 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/" {
 		app.notFound(w)
 		return
+	}
+
+	snippets, err := app.snippetRep.Latest()
+	if err != nil {
+		app.serverError(w, err)
+		return
+	}
+
+	data := struct {
+		Snippets []*domain.Snippet
+	}{
+		Snippets: snippets,
 	}
 
 	files := []string{
@@ -26,7 +40,7 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = ts.Execute(w, nil)
+	err = ts.Execute(w, data)
 	if err != nil {
 		app.serverError(w, err)
 	}
@@ -87,7 +101,18 @@ func (app *application) showSnippet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err = fmt.Fprintf(w, "Displaying a snippet with id: %d", id)
+	s, err := app.snippetRep.Get(id)
+	if err != nil {
+		if errors.Is(err, domain.ErrNoRecord) {
+			app.notFound(w)
+		} else {
+			app.serverError(w, err)
+		}
+		return
+	}
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	_, err = fmt.Fprintf(w, "<h2>Displaying a snippet</h2><div><p>%v</p></div>", s)
 	if err != nil {
 		app.errorLog.Println(err)
 	}
