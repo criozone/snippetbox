@@ -46,35 +46,6 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (app *application) listSnippets(w http.ResponseWriter, r *http.Request) {
-	files := []string{
-		"./ui/html/list.tpl",
-		"./ui/html/base.layout.tpl",
-		"./ui/html/footer.partial.tpl",
-	}
-
-	ts, err := template.ParseFiles(files...)
-	if err != nil {
-		app.serverError(w, err)
-		return
-	}
-
-	dummy := struct {
-		List []string
-	}{
-		List: []string{
-			"First dummy snippet",
-			"Second dummy snippet",
-			"Third dummy snippet",
-		},
-	}
-
-	err = ts.Execute(w, dummy)
-	if err != nil {
-		app.serverError(w, err)
-	}
-}
-
 func (app *application) createSnippet(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		w.Header().Set("Allow", http.MethodPost)
@@ -111,10 +82,25 @@ func (app *application) showSnippet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	_, err = fmt.Fprintf(w, "<h2>Displaying a snippet</h2><div><p>%v</p></div>", s)
+	files := []string{
+		"./ui/html/show.page.tpl",
+		"./ui/html/base.layout.tpl",
+		"./ui/html/footer.partial.tpl",
+	}
+
+	ts, err := template.ParseFiles(files...)
 	if err != nil {
-		app.errorLog.Println(err)
+		app.serverError(w, err)
+		return
+	}
+
+	td := templateData{
+		Snippet: s,
+	}
+
+	err = ts.Execute(w, td)
+	if err != nil {
+		app.serverError(w, err)
 	}
 }
 
