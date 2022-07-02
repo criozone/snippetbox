@@ -4,7 +4,6 @@ import (
 	"criozone.net/snippetbox/pkg/domain"
 	"errors"
 	"fmt"
-	"html/template"
 	"net/http"
 	"os"
 	"strconv"
@@ -22,28 +21,7 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data := struct {
-		Snippets []*domain.Snippet
-	}{
-		Snippets: snippets,
-	}
-
-	files := []string{
-		"./ui/html/home.page.tpl",
-		"./ui/html/base.layout.tpl",
-		"./ui/html/footer.partial.tpl",
-	}
-
-	ts, err := template.ParseFiles(files...)
-	if err != nil {
-		app.serverError(w, err)
-		return
-	}
-
-	err = ts.Execute(w, data)
-	if err != nil {
-		app.serverError(w, err)
-	}
+	app.render(w, r, "home.page.tpl", &templateData{Snippets: snippets})
 }
 
 func (app *application) createSnippet(w http.ResponseWriter, r *http.Request) {
@@ -53,11 +31,12 @@ func (app *application) createSnippet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	title := "O snail"
-	content := "O snail\\nClimb Mount Fuji,\\nBut slowly, slowly!\\n\\n– Kobayashi Issa"
+	title := "O snail 2"
+	content := "O snail\nClimb Mount Fuji,\nBut slowly, slowly!\n\n– Kobayashi Issa"
 	expires := "7"
+	intfield := 10
 
-	id, err := app.snippetRep.Insert(title, content, expires)
+	id, err := app.snippetRep.Insert(title, content, expires, intfield)
 	if err != nil {
 		app.serverError(w, err)
 	}
@@ -82,26 +61,7 @@ func (app *application) showSnippet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	files := []string{
-		"./ui/html/show.page.tpl",
-		"./ui/html/base.layout.tpl",
-		"./ui/html/footer.partial.tpl",
-	}
-
-	ts, err := template.ParseFiles(files...)
-	if err != nil {
-		app.serverError(w, err)
-		return
-	}
-
-	td := templateData{
-		Snippet: s,
-	}
-
-	err = ts.Execute(w, td)
-	if err != nil {
-		app.serverError(w, err)
-	}
+	app.render(w, r, "show.page.tpl", &templateData{Snippet: s})
 }
 
 type CustomFileSystem struct {

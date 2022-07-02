@@ -17,7 +17,9 @@
         <nav>
             <a href="/">Home</a>
         </nav>
+        <div class="content">
         {{template "main" .}}
+        </div>
         {{template "footer" .}}
         <script src="/static/js/main.js" type="text/javascript"></script>
     </body>

@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"flag"
 	"fmt"
+	"html/template"
 	"log"
 	"net/http"
 	"os"
@@ -13,10 +14,11 @@ import (
 )
 
 type application struct {
-	errorLog   *log.Logger
-	infoLog    *log.Logger
-	dbConn     *sql.DB
-	snippetRep *mysql.SnippetMysqlRep
+	errorLog      *log.Logger
+	infoLog       *log.Logger
+	dbConn        *sql.DB
+	snippetRep    *mysql.SnippetMysqlRep
+	templateCache map[string]*template.Template
 }
 
 func main() {
@@ -40,6 +42,11 @@ func main() {
 		}
 	}(dbConn)
 
+	tc, err := NewTemplateCache("./ui/html")
+	if err != nil {
+		errorLog.Fatalln(err)
+	}
+
 	app := &application{
 		errorLog: errorLog,
 		infoLog:  infoLog,
@@ -47,6 +54,7 @@ func main() {
 		snippetRep: &mysql.SnippetMysqlRep{
 			DB: dbConn,
 		},
+		templateCache: tc,
 	}
 
 	srv := &http.Server{
