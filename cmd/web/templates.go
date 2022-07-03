@@ -4,6 +4,7 @@ import (
 	"criozone.net/snippetbox/pkg/domain"
 	"html/template"
 	"path/filepath"
+	"time"
 )
 
 type templateData struct {
@@ -21,7 +22,7 @@ func NewTemplateCache(dir string) (map[string]*template.Template, error) {
 
 	for _, page := range pages {
 		name := filepath.Base(page)
-		ts, err := template.ParseFiles(page)
+		ts, err := template.New(name).Funcs(functions).ParseFiles(page)
 		if err != nil {
 			return nil, err
 		}
@@ -40,4 +41,12 @@ func NewTemplateCache(dir string) (map[string]*template.Template, error) {
 	}
 
 	return cache, nil
+}
+
+func humanDate(t time.Time) string {
+	return t.Format("2006-01-02 15:04:05")
+}
+
+var functions = template.FuncMap{
+	"humanDate": humanDate,
 }
