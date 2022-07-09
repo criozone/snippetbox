@@ -16,6 +16,7 @@
         </header>
         <nav>
             <a href="/">Home</a>
+            <a href="/snippet/create">Create snippet</a>
         </nav>
         <div class="content">
         {{template "main" .}}
