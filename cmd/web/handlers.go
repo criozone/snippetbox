@@ -29,6 +29,7 @@ func (app *application) createSnippet(w http.ResponseWriter, r *http.Request) {
 	}
 
 	f := forms.New(r.PostForm)
+	f.AddFilter(strings.TrimSpace)
 	f.Required("title", "content", "expires")
 	f.MaxLength("title", 100)
 	f.Allowed("expires", "365", "7", "1")
@@ -39,12 +40,7 @@ func (app *application) createSnippet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	//TODO: modify form.Form so that we can set filter funcs and call them when getting the field value
-	title := strings.TrimSpace(r.PostForm.Get("title"))
-	content := strings.TrimSpace(r.PostForm.Get("content"))
-	expires := strings.TrimSpace(r.PostForm.Get("expires"))
-
-	id, err := app.snippetRep.Insert(title, content, expires)
+	id, err := app.snippetRep.Insert(f.Get("title"), f.Get("content"), f.Get("expires"))
 	if err != nil {
 		app.serverError(w, err)
 	}
