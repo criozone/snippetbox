@@ -2,6 +2,7 @@ package main
 
 import (
 	"criozone.net/snippetbox/pkg/domain"
+	"criozone.net/snippetbox/pkg/forms"
 	"html/template"
 	"path/filepath"
 	"time"
@@ -9,6 +10,7 @@ import (
 
 type templateData struct {
 	CurrentYear int
+	Form        *forms.Form
 	Snippet     *domain.Snippet
 	Snippets    []*domain.Snippet
 }
