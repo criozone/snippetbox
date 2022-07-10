@@ -19,6 +19,9 @@
             <a href="/snippet/create">Create snippet</a>
         </nav>
         <div class="content">
+            {{with .Flash}}
+            <div class="flash">{{.}}</div>
+            {{end}}
         {{template "main" .}}
         </div>
         {{template "footer" .}}

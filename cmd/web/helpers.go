@@ -50,6 +50,7 @@ func (app *application) addCommonData(td *templateData, r *http.Request) *templa
 	}
 
 	td.CurrentYear = time.Now().Year()
+	td.Flash = app.session.PopString(r, "flash")
 
 	return td
 }
