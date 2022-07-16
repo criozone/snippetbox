@@ -15,7 +15,7 @@
         <tr>
             <td><a href="/snippet/{{.Id}}">{{.Title}}</a></td>
             <td>{{humanDate .Created}}</td>
-            <td>#{{.Id}}</td>
+            <td><a class="snippet-delete" href="/snippet/delete/{{.Id}}" >{{.Id}}</a></td>
         </tr>
         {{end}}
     </table>

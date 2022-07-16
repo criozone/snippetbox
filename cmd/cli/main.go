@@ -2,17 +2,17 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"os"
+	"path/filepath"
 )
 
 func main() {
-	list, err := os.ReadDir(".")
+	binPath, err := filepath.Abs(os.Args[0])
 	if err != nil {
-		log.Fatalln(err)
+		fmt.Println(err)
+		return
 	}
 
-	for _, dir := range list {
-		fmt.Println(dir.Name())
-	}
+	fmt.Println("Exec path: ", binPath)
+
 }

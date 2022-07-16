@@ -330,3 +330,13 @@ footer {
     bottom: 0;
     width: 100%;
 }
+
+a.snippet-delete {
+    display: inline-block;
+    background-image: url(/static/img/delete_black_1600.png);
+    background-repeat: no-repeat;
+    background-position: right;
+    background-size: contain;
+    height: 22px;
+    padding-right: 30px;
+}

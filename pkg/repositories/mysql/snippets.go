@@ -44,8 +44,8 @@ func (sr *SnippetMysqlRep) Get(id int) (*domain.Snippet, error) {
 	return s, nil
 }
 
-//goland:noinspection SqlNoDataSourceInspection
 func (sr *SnippetMysqlRep) Latest() ([]*domain.Snippet, error) {
+	//goland:noinspection SqlNoDataSourceInspection
 	stmt := "SELECT id, title, content, created, expires FROM snippets WHERE expires > UTC_TIMESTAMP() ORDER BY created DESC LIMIT 10"
 	rows, err := sr.DB.Query(stmt)
 	if err != nil {
@@ -75,4 +75,20 @@ func (sr *SnippetMysqlRep) Latest() ([]*domain.Snippet, error) {
 	}
 
 	return snippets, nil
+}
+
+func (sr *SnippetMysqlRep) Delete(id int) bool {
+	//goland:noinspection SqlNoDataSourceInspection
+	stmt := "DELETE FROM snippets WHERE id = ?"
+	result, err := sr.DB.Exec(stmt, id)
+	if err != nil {
+		return false
+	}
+
+	deletedCount, err := result.RowsAffected()
+	if err != nil || deletedCount == 0 {
+		return false
+	}
+
+	return true
 }

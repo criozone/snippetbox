@@ -50,6 +50,25 @@ func (app *application) createSnippet(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, fmt.Sprintf("/snippet/%d", id), http.StatusSeeOther)
 }
 
+func (app *application) delSnippet(w http.ResponseWriter, r *http.Request) {
+	id, err := strconv.Atoi(r.URL.Query().Get(":id"))
+	if err != nil || id == 0 {
+		app.session.Put(r, "flash", "Invalid snippet identificator supplied")
+		http.Redirect(w, r, "/", http.StatusSeeOther)
+		return
+	}
+
+	res := app.snippetRep.Delete(id)
+	if !res {
+		app.session.Put(r, "flash", "Invalid snippet identificator supplied")
+		http.Redirect(w, r, "/", http.StatusSeeOther)
+		return
+	}
+
+	app.session.Put(r, "flash", fmt.Sprintf("Snippet #%d deleted!", id))
+	http.Redirect(w, r, "/", http.StatusSeeOther)
+}
+
 func (app *application) createSnippetForm(w http.ResponseWriter, r *http.Request) {
 	app.render(w, r, "create.page.tpl", &templateData{Form: forms.New(nil)})
 }
